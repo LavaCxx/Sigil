@@ -1,0 +1,46 @@
+{
+  "id": "nte",
+  "name_zh": "异环",
+  "name_en": "Neverless to Everless",
+  "abbrev": "NTE",
+  "version": "0.5.2",
+  "created_at": "2026-06-11T15:07:21.977733+00:00",
+  "developer": "NetEase",
+  "script_type": "alphabetic_substitution",
+  "script_features": {
+    "letter_count": 26,
+    "digit_count": 10,
+    "punctuation_count": 12,
+    "compound_glyphs": false,
+    "case_sensitive": false,
+    "rtl": false,
+    "has_digits": true,
+    "has_punctuation": true,
+    "has_reject_class": true
+  },
+  "data_provenance": {
+    "source": "Official game fonts: ToStar.ttf (cipher letters) + MiSans Latin Demibold (digits/punctuation fallback)",
+    "method": "Rendered directly from real fonts with online augmentation (blur/downscale/noise/affine); size-preserving baseline-aligned glyphs; grayscale anti-aliased patches with percentile contrast normalization (digits oversampled)",
+    "human_traced": false,
+    "verified_against_real_screenshots": false
+  },
+  "model": {
+    "framework": "ONNX",
+    "architecture": "TinyGlyphCNN (3 conv + GAP + FC)",
+    "input_size": [
+      64,
+      64
+    ],
+    "num_classes": 49,
+    "file_size_kb": 406.5,
+    "sanity_accuracy": 1.0,
+    "reject_recall": 0.07
+  },
+  "files": {
+    "model": "model.onnx",
+    "mapping": "mapping.json",
+    "font": "font.ttf",
+    "preview": "preview.png",
+    "templates": "templates.bin"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "game": "NTE",
+  "game_full_name": "Neverless to Everless",
+  "script_name": "NTE Custom Script",
+  "case_sensitive": false,
+  "letter_count": 26,
+  "letters": "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+  "glyph_source": {
+    "type": "reference_chart_extraction",
+    "chart": "reference_chart.png",
+    "extracted_at": "2026-05-24",
+    "extraction_script": "training/scripts/extract_glyphs.py",
+    "glyph_files": {
+      "raw_dir": "glyphs/raw/<letter>.png",
+      "binary_dir": "glyphs/binary/<letter>.png",
+      "preview": "glyphs/preview.png"
+    }
+  },
+  "notes": [
+    "字符映射来自玩家社区流传的对照表图片",
+    "每个 glyph 文件名直接是其对应的英文字母 (A.png, B.png, ...)",
+    "binary/ 目录里的是已二值化、紧致裁剪、带 padding 的训练就绪版本",
+    "raw/ 目录里的是从对照表里按格子等分裁剪的原始版本（用于回溯）",
+    "暂未发现数字、标点等额外字符；如果游戏内出现需要单独补充"
+  ]
+}

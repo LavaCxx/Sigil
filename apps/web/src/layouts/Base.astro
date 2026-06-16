@@ -1,0 +1,24 @@
+---
+import "~/styles/global.css";
+
+interface Props {
+  title?: string;
+}
+
+const { title = "GlyphLens" } = Astro.props;
+---
+
+<!doctype html>
+<html lang="zh-CN" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="description" content="浏览器内运行的游戏自创文字识别翻译工具" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

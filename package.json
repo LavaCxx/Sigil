@@ -1,0 +1,12 @@
+{
+  "name": "glyphlens",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Browser-based recognition & translation of game-invented scripts.",
+  "scripts": {
+    "dev": "pnpm --filter @glyphlens/web dev",
+    "build": "pnpm --filter @glyphlens/web build",
+    "preview": "pnpm --filter @glyphlens/web preview"
+  },
+  "packageManager": "pnpm@10.11.1"
+}

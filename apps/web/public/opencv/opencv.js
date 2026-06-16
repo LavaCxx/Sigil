@@ -1,0 +1,1 @@
+../../node_modules/@techstark/opencv-js/dist/opencv.js
