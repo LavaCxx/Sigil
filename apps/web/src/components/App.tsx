@@ -3,6 +3,7 @@ import { useStore } from "@nanostores/solid";
 import { ScanText, Languages } from "lucide-solid";
 import { bootstrapPacks } from "~/stores/pack";
 import { $appMode, type AppMode } from "~/stores/mode";
+import { useT } from "~/stores/locale";
 import { warmupPipeline } from "~/lib/pipeline";
 import TopBar from "./TopBar";
 import InputPanel from "./InputPanel";
@@ -10,8 +11,25 @@ import ResultPanel from "./ResultPanel";
 import DebugPanel from "./DebugPanel";
 import EncodePanel from "./EncodePanel";
 
+/**
+ * DebugPanel 仅在以下任一条件成立时渲染：
+ * - 开发模式（import.meta.env.DEV，生产构建会被 Vite 替换为 false 并被死代码消除）
+ * - URL 带 ?debug=1（允许生产环境也能临时开启调参面板）
+ *
+ * 默认生产用户看不到分割参数滑块、patch 可视化、字体包元信息等开发期辅助。
+ */
+function shouldShowDebugPanel(): boolean {
+  if (import.meta.env.DEV) return true;
+  if (typeof location !== "undefined") {
+    return new URLSearchParams(location.search).has("debug");
+  }
+  return false;
+}
+
 export default function App() {
   const mode = useStore($appMode);
+  const t = useT();
+  const showDebug = shouldShowDebugPanel();
 
   onMount(() => {
     bootstrapPacks();
@@ -31,20 +49,20 @@ export default function App() {
               onClick={() => $appMode.set("recognize")}
             >
               <ScanText size={14} />
-              识别 · 加密文字 → 英文
+              {t("app.modeRecognize")}
             </ModeBtn>
             <ModeBtn
               active={mode() === "encode"}
               onClick={() => $appMode.set("encode")}
             >
               <Languages size={14} />
-              转换 · 英文 → 加密文字
+              {t("app.modeEncode")}
             </ModeBtn>
           </div>
         </div>
 
         <Show when={mode() === "recognize"}>
-          <div class="grid gap-6 lg:grid-cols-2 lg:items-start">
+          <div class="grid gap-6 lg:grid-cols-2">
             <div class="lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-5rem)] lg:overflow-y-auto">
               <InputPanel />
             </div>
@@ -52,7 +70,9 @@ export default function App() {
               <ResultPanel />
             </div>
           </div>
-          <DebugPanel />
+          <Show when={showDebug}>
+            <DebugPanel />
+          </Show>
         </Show>
 
         <Show when={mode() === "encode"}>
@@ -60,7 +80,7 @@ export default function App() {
         </Show>
 
         <footer class="text-center text-xs text-muted py-4">
-          GlyphLens · 浏览器内推理 · 图像不离开本机
+          {t("app.footer")}
         </footer>
       </main>
     </div>

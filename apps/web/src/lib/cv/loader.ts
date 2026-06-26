@@ -23,7 +23,7 @@ function ensureWorker(): Worker {
   // module Worker + fetch 加载 opencv（不用 import，不用 importScripts）
   worker = new Worker(
     new URL("./cv.worker.ts", import.meta.url),
-    { type: "module", name: "glyphlens-cv" },
+    { type: "module", name: "sigil-cv" },
   );
 
   worker.addEventListener("message", (e) => {

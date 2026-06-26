@@ -138,7 +138,7 @@ def main() -> None:
             "fullName": "NTE Custom Script Regular",
             "psName": "NTECustomScript-Regular",
             "version": "Version 1.0",
-            "manufacturer": "GlyphLens (auto-vectorized from reference chart)",
+            "manufacturer": "Sigil (auto-vectorized from reference chart)",
         }
     )
     fb.setupOS2(sTypoAscender=ASCENT, sTypoDescender=DESCENT, usWinAscent=ASCENT, usWinDescent=-DESCENT)

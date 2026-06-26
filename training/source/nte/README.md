@@ -1,6 +1,6 @@
 # NTE（异环）字体投放区
 
-把你手上那个**可能是 NTE（异环 / Neverless to Everless）游戏内自创文字**的字体文件放在这个目录下。
+把你手上那个**可能是 NTE（异环 / Neverness to Everness）游戏内自创文字**的字体文件放在这个目录下。
 
 ## 投放要求
 

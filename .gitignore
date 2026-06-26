@@ -37,8 +37,20 @@ Thumbs.db
 !.vscode/extensions.json
 !.vscode/settings.json
 
-# Local AI / tool config
-.claude/settings.local.json
+# AI assistant rules / configs (kept local, not committed)
+CLAUDE.md
+CLAUDE.MD
+AGENTS.md
+GEMINI.md
+.claude/
+.cursor/
+.cursorrules
+.cursorignore
+.github/copilot-instructions.md
+.windsurfrules
+.aider*
+.codeiumignore
+.continue*
 
 # Vite cache
 .vite/

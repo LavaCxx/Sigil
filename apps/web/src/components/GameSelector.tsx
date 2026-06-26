@@ -6,10 +6,12 @@ import {
   $currentPackEntry,
   selectPack,
 } from "~/stores/pack";
+import { useT } from "~/stores/locale";
 
 export default function GameSelector() {
   const registry = useStore($registry);
   const current = useStore($currentPackEntry);
+  const t = useT();
   const [open, setOpen] = createSignal(false);
 
   let rootRef: HTMLDivElement | undefined;
@@ -31,8 +33,8 @@ export default function GameSelector() {
         class="flex items-center gap-2 rounded-lg border border-[var(--color-surface)] bg-[var(--color-crust)] px-3 py-1.5 text-sm hover:border-[var(--color-overlay)] transition"
       >
         <Gamepad2 size={14} class="text-accent" />
-        <span class="hidden sm:inline text-muted">游戏:</span>
-        <Show when={current()} fallback={<span class="text-muted">选择…</span>}>
+        <span class="hidden sm:inline text-muted">{t("selector.game")}</span>
+        <Show when={current()} fallback={<span class="text-muted">{t("selector.selectPlaceholder")}</span>}>
           {(c) => (
             <span class="font-medium">
               {c().name_zh}
@@ -65,13 +67,13 @@ export default function GameSelector() {
                     <div class="font-medium">{entry.name_zh}</div>
                     <div class="text-xs text-muted">{entry.name_en}</div>
                   </span>
-                  {isCurrent() && <span class="text-xs text-accent">已选</span>}
+                  {isCurrent() && <span class="text-xs text-accent">{t("selector.selected")}</span>}
                 </button>
               );
             }}
           </For>
           <div class="border-t border-[var(--color-surface)] mt-1 px-3 py-2 text-xs text-muted">
-            更多游戏字体包将在后续版本接入
+            {t("selector.moreComing")}
           </div>
         </div>
       </Show>

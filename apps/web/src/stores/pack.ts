@@ -8,7 +8,7 @@ import { loadPack } from "~/lib/packs/loader";
 
 /** 已知的字体包列表（手动维护，未来可改成 fetch /packs/index.json 动态发现） */
 export const $registry = atom<PackRegistryEntry[]>([
-  { id: "nte", name_zh: "异环", name_en: "Neverless to Everless" },
+  { id: "nte", name_zh: "异环", name_en: "Neverness to Everness" },
 ]);
 
 export const $currentPackId = atom<string | null>("nte");

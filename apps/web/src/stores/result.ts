@@ -16,6 +16,7 @@ import { $segmentConfig } from "./segmentConfig";
 import { $manualSplitXs } from "./manualSplits";
 import { recognize, type PipelineStage } from "~/lib/pipeline";
 import { translateText } from "~/lib/translate";
+import { t } from "./locale";
 
 export const $result = atom<RecognitionResult | null>(null);
 export const $recognizing = atom<boolean>(false);
@@ -38,7 +39,7 @@ export function runRecognition(): void {
   const input = $currentInput.get();
   const pack = $loadedPack.get();
   if (!input || !pack) {
-    $recognizeError.set(input ? "字体包未加载" : "请先提供一张图像");
+    $recognizeError.set(input ? t("error.packNotLoaded") : t("error.noImage"));
     return;
   }
 

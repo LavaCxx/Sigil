@@ -1,4 +1,4 @@
-# GlyphLens 交接文档（下一次对话入口）
+# Sigil 交接文档（下一次对话入口）
 
 > **下一次对话开始时请先读这份文档。** 它包含恢复上下文所需的全部关键信息：项目目标、已完成的阶段、关键决策、当前状态、已知坑点、下一步计划。
 
@@ -6,7 +6,7 @@
 
 ## 1. TL;DR — 一句话说清现状
 
-**目标**：浏览器内运行的多游戏自创文字识别翻译工具，首发支持 NTE（异环 / Neverless to Everless）。
+**目标**：浏览器内运行的多游戏自创文字识别翻译工具，首发支持 NTE（异环 / Neverness to Everness）。
 
 **目前进度**：Phase 0、0a、1、2 **全部完成**。从一张玩家社区对照表出发，已端到端跑通"提取 → 训练 → ONNX 导出 → 41KB 字体包 → Astro+SolidJS Web 应用骨架（占位 CV/推理）"。**剩下的是 Phase 3-4：把 `apps/web/src/lib/pipeline.ts` 里的占位实现换成真实的 OpenCV.js + ONNX Runtime Web。**
 

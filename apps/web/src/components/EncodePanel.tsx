@@ -4,6 +4,7 @@ import { Show, createMemo, createResource, createSignal } from "solid-js";
 import { $loadedPack } from "~/stores/pack";
 import { $encodeText } from "~/stores/encode";
 import { ensurePackFont } from "~/lib/packs/font";
+import { useT } from "~/stores/locale";
 import type { LoadedPack } from "~/types/pack";
 
 /**
@@ -13,6 +14,7 @@ import type { LoadedPack } from "~/types/pack";
 export default function EncodePanel() {
   const pack = useStore($loadedPack);
   const text = useStore($encodeText);
+  const t = useT();
   const [copied, setCopied] = createSignal(false);
   const [downloading, setDownloading] = createSignal(false);
 
@@ -55,7 +57,7 @@ export default function EncodePanel() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `glyphlens-encoded-${Date.now()}.png`;
+      a.download = `sigil-encoded-${Date.now()}.png`;
       a.click();
       URL.revokeObjectURL(url);
     } finally {
@@ -70,7 +72,7 @@ export default function EncodePanel() {
         <div class="flex items-center justify-between">
           <h2 class="text-sm font-semibold tracking-wide uppercase text-subtext flex items-center gap-2">
             <PenLine size={14} />
-            英文输入
+            {t("encode.titleInput")}
           </h2>
           <Show when={text().length > 0}>
             <button
@@ -79,7 +81,7 @@ export default function EncodePanel() {
               class="flex items-center gap-1 text-xs text-muted hover:text-text transition"
             >
               <Eraser size={12} />
-              清空
+              {t("encode.clear")}
             </button>
           </Show>
         </div>
@@ -87,7 +89,7 @@ export default function EncodePanel() {
         <textarea
           value={text()}
           onInput={(e) => $encodeText.set(e.currentTarget.value)}
-          placeholder="在此输入英文，例如 HELLO WORLD"
+          placeholder={t("encode.placeholder")}
           spellcheck={false}
           class="flex-1 min-h-[260px] w-full resize-none rounded-xl bg-[var(--color-mantle)] border border-[var(--color-surface)] p-5 text-xl font-mono tracking-wide leading-relaxed text-text placeholder:text-muted focus:outline-none focus:border-[var(--color-accent)] transition"
         />
@@ -95,13 +97,13 @@ export default function EncodePanel() {
         <div class="text-xs text-muted">
           <Show
             when={pack()}
-            fallback={<span>等待字体包加载…</span>}
+            fallback={<span>{t("encode.waitingPack")}</span>}
           >
             {(p) => (
               <>
-                字母将用 <span class="text-subtext">{p().meta.name_zh}</span> 的密文字体渲染
+                {t("encode.renderHint", { pack: p().meta.name_zh })}
                 <Show when={!p().mapping.case_sensitive}>
-                  <span> · 不区分大小写（自动转为大写）</span>
+                  <span>{t("encode.caseInsensitive")}</span>
                 </Show>
               </>
             )}
@@ -113,7 +115,7 @@ export default function EncodePanel() {
       <div class="panel p-4 flex flex-col gap-4 h-full">
         <div class="flex items-center justify-between">
           <h2 class="text-sm font-semibold tracking-wide uppercase text-subtext">
-            加密文字
+            {t("encode.titleOutput")}
           </h2>
           <div class="flex items-center gap-3">
             <Show when={normalized().trim().length > 0}>
@@ -123,7 +125,7 @@ export default function EncodePanel() {
                 class="flex items-center gap-1 text-xs text-muted hover:text-text transition"
               >
                 <Copy size={12} />
-                {copied() ? "已复制" : "复制文本"}
+                {copied() ? t("result.copied") : t("encode.copyText")}
               </button>
               <button
                 type="button"
@@ -132,7 +134,7 @@ export default function EncodePanel() {
                 class="flex items-center gap-1 text-xs text-muted hover:text-text transition disabled:opacity-40"
               >
                 <Download size={12} />
-                {downloading() ? "生成中…" : "下载图片"}
+                {downloading() ? t("result.generating") : t("encode.downloadImage")}
               </button>
             </Show>
           </div>
@@ -144,7 +146,7 @@ export default function EncodePanel() {
             <div class="flex-1 min-h-[260px] grid place-items-center text-center px-6">
               <div class="text-muted">
                 <Sparkles size={36} class="mx-auto mb-3 opacity-60" />
-                <div class="text-sm">左侧输入英文，这里实时显示加密文字</div>
+                <div class="text-sm">{t("encode.outputPlaceholder")}</div>
               </div>
             </div>
           }
@@ -155,7 +157,7 @@ export default function EncodePanel() {
               fallback={
                 <div class="flex items-center gap-2 text-sm text-muted">
                   <Loader2 size={16} class="animate-spin" />
-                  加载密文字体…
+                  {t("encode.loadingFont")}
                 </div>
               }
             >
@@ -173,7 +175,7 @@ export default function EncodePanel() {
 
         <Show when={unsupportedChars().length > 0}>
           <div class="rounded-lg bg-[var(--color-accent-warm)]/10 border border-[var(--color-accent-warm)]/30 px-3 py-2 text-xs text-[var(--color-accent-warm)]">
-            以下字符不在字体包字符集内，将以普通字形显示：
+            {t("encode.unsupportedHint")}
             <span class="font-mono ml-1">{unsupportedChars().join(" ")}</span>
           </div>
         </Show>

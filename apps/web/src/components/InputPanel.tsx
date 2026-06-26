@@ -18,6 +18,7 @@ import {
 } from "~/stores/input";
 import { $loadedPack, $packLoading } from "~/stores/pack";
 import { $recognizing, runRecognition } from "~/stores/result";
+import { useT } from "~/stores/locale";
 
 const ACCEPTED_TYPES = "image/png,image/jpeg,image/webp,image/avif";
 
@@ -27,6 +28,7 @@ export default function InputPanel() {
   const pack = useStore($loadedPack);
   const packLoading = useStore($packLoading);
   const recognizing = useStore($recognizing);
+  const t = useT();
 
   const [dragging, setDragging] = createSignal(false);
   const [pasteHint, setPasteHint] = createSignal<string | null>(null);
@@ -37,7 +39,7 @@ export default function InputPanel() {
     if (!files || files.length === 0) return;
     const file = files[0]!;
     if (!file.type.startsWith("image/")) {
-      setPasteHint(`仅支持图片格式 (收到 ${file.type || "未知"})`);
+      setPasteHint(t("input.imageOnlyError", { type: file.type || t("input.unknownType") }));
       setTimeout(() => setPasteHint(null), 3000);
       return;
     }
@@ -55,7 +57,7 @@ export default function InputPanel() {
   async function handlePasteButton() {
     try {
       if (!navigator.clipboard?.read) {
-        setPasteHint("当前浏览器不支持剪贴板读取，请用 Ctrl/Cmd+V 直接粘贴");
+        setPasteHint(t("input.clipboardNotSupported"));
         return;
       }
       const items = await navigator.clipboard.read();
@@ -67,7 +69,7 @@ export default function InputPanel() {
           return;
         }
       }
-      setPasteHint("剪贴板里没有图片");
+      setPasteHint(t("input.noImageInClipboard"));
       setTimeout(() => setPasteHint(null), 2500);
     } catch (err) {
       setPasteHint(err instanceof Error ? err.message : String(err));
@@ -78,7 +80,7 @@ export default function InputPanel() {
   async function handleScreenCapture() {
     try {
       if (!navigator.mediaDevices?.getDisplayMedia) {
-        setPasteHint("当前浏览器不支持屏幕捕获");
+        setPasteHint(t("input.screenCaptureNotSupported"));
         setTimeout(() => setPasteHint(null), 3000);
         return;
       }
@@ -155,7 +157,7 @@ export default function InputPanel() {
     <div class="panel p-4 flex flex-col gap-4 h-full">
       <div class="flex items-center justify-between">
         <h2 class="text-sm font-semibold tracking-wide uppercase text-subtext">
-          输入图像
+          {t("input.title")}
         </h2>
         <Show when={input()}>
           <button
@@ -164,7 +166,7 @@ export default function InputPanel() {
             class="flex items-center gap-1 text-xs text-muted hover:text-[var(--color-accent-red)] transition"
           >
             <Trash2 size={12} />
-            清除
+            {t("input.clear")}
           </button>
         </Show>
       </div>
@@ -187,9 +189,9 @@ export default function InputPanel() {
           >
             <ImageUp size={42} class="text-accent opacity-80" />
             <div>
-              <div class="text-sm">把游戏截图拖到这里</div>
+              <div class="text-sm">{t("input.dropHint")}</div>
               <div class="text-xs text-muted mt-1">
-                或使用下方按钮 · 也支持 Ctrl/Cmd+V 直接粘贴
+                {t("input.dropSubhint")}
               </div>
             </div>
           </div>
@@ -198,14 +200,14 @@ export default function InputPanel() {
         {(img) => (
           <div class="flex flex-col gap-2">
             <div class="flex items-center justify-between gap-2 text-xs text-muted px-0.5">
-              <span>{roi() ? "已框选局部区域" : "拖拽图片框选文字区域（可选）"}</span>
+              <span>{roi() ? t("input.roiSelected") : t("input.roiHint")}</span>
               <Show when={roi()}>
                 <button
                   type="button"
                   onClick={() => setRoi(null)}
                   class="shrink-0 px-2 py-0.5 rounded border border-[var(--color-surface)] text-subtext hover:text-[var(--color-accent-red)] transition"
                 >
-                  清除选区
+                  {t("input.clearRoi")}
                 </button>
               </Show>
             </div>
@@ -240,10 +242,10 @@ export default function InputPanel() {
           capture="environment"
           onChange={(e) => handleFiles(e.currentTarget.files, "camera")}
         />
-        <ActionButton icon={<ImageUp size={16} />} label="上传" onClick={() => fileInputRef?.click()} />
-        <ActionButton icon={<ClipboardPaste size={16} />} label="粘贴" onClick={handlePasteButton} />
-        <ActionButton icon={<Monitor size={16} />} label="截屏" onClick={handleScreenCapture} />
-        <ActionButton icon={<Camera size={16} />} label="拍照" onClick={() => cameraInputRef?.click()} />
+        <ActionButton icon={<ImageUp size={16} />} label={t("input.upload")} onClick={() => fileInputRef?.click()} />
+        <ActionButton icon={<ClipboardPaste size={16} />} label={t("input.paste")} onClick={handlePasteButton} />
+        <ActionButton icon={<Monitor size={16} />} label={t("input.capture")} onClick={handleScreenCapture} />
+        <ActionButton icon={<Camera size={16} />} label={t("input.camera")} onClick={() => cameraInputRef?.click()} />
       </div>
 
       <button
@@ -257,7 +259,7 @@ export default function InputPanel() {
         }`}
       >
         <Wand2 size={16} />
-        {recognizing() ? "识别中…" : "开始识别"}
+        {recognizing() ? t("input.recognizing") : t("input.startRecognize")}
       </button>
     </div>
   );
@@ -270,6 +272,7 @@ export default function InputPanel() {
  */
 function RoiSelector(props: { previewUrl: string }) {
   const roi = useStore($roi);
+  const t = useT();
   const [draft, setDraft] = createSignal<NormalizedRoi | null>(null);
   const [layout, setLayout] = createSignal({ ox: 0, oy: 0, dw: 1, dh: 1 });
   let imgEl: HTMLImageElement | undefined;
@@ -372,7 +375,7 @@ function RoiSelector(props: { previewUrl: string }) {
       <img
         ref={imgEl}
         src={props.previewUrl}
-        alt="待识别"
+        alt={t("input.altPending")}
         draggable={false}
         onLoad={refreshLayout}
         class="max-h-[min(48vh,440px)] max-w-full object-contain block select-none"

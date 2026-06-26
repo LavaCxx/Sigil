@@ -62,7 +62,7 @@ URL Vendor     = 'http://fonts.apple.com/LastResort/LastResort.html'
 1. 用户准备清晰的 NTE 自创文字参考截图（PV、宣传图、UP 主实机视频截图均可）
 2. 在 Glyphr Studio 中描摹出 26 个英文字母对应的形状
 3. 导出 TTF 后，沿用原计划的训练流水线
-4. 后续在 GlyphLens 内集成自建描摹器（Phase 7）
+4. 后续在 Sigil 内集成自建描摹器（Phase 7）
 
 ## 附：复现命令
 

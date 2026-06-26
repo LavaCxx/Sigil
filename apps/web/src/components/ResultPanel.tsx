@@ -12,19 +12,11 @@ import {
   $translating,
   $translateError,
 } from "~/stores/result";
-import { renderTranslatedImageBlob, renderChineseTranslatedImage, renderChineseTranslatedImageBlob } from "~/lib/cv/inpaint";
+import { renderTranslatedImageBlob } from "~/lib/cv/inpaint";
+import { useT } from "~/stores/locale";
 import type { PipelineStage } from "~/lib/pipeline";
 
-const STAGE_LABELS: Record<PipelineStage, string> = {
-  "loading-cv": "加载 OpenCV.js（首次约 3-8 秒）",
-  preprocess: "图像预处理 · 灰度 + 二值化",
-  segment: "字符分割 · 连通域分析",
-  "loading-model": "加载 ONNX 模型",
-  classify: "神经网络推理",
-  postprocess: "拼装结果",
-};
-
-type ViewTab = "text" | "chinese" | "image-en" | "image-zh";
+type ViewTab = "text" | "chinese" | "image-en";
 
 export default function ResultPanel() {
   const result = useStore($result);
@@ -36,6 +28,7 @@ export default function ResultPanel() {
   const translation = useStore($translation);
   const translating = useStore($translating);
   const translateError = useStore($translateError);
+  const t = useT();
 
   const [copied, setCopied] = createSignal(false);
   const [viewTab, setViewTab] = createSignal<ViewTab>("text");
@@ -43,14 +36,6 @@ export default function ResultPanel() {
   const [downloading, setDownloading] = createSignal(false);
 
   const hasTranslatedImage = createMemo(() => !!result()?.debug?.translatedImageUrl);
-
-  const chineseImageUrl = createMemo(() => {
-    const inp = input();
-    const r = result();
-    const t = translation();
-    if (!inp || !r || !t || r.glyphs.length === 0) return null;
-    return renderChineseTranslatedImage(inp.bitmap, r.glyphs, t.translatedLines);
-  });
 
   function confidenceColor(conf: number): string {
     if (conf >= 0.9) return "text-[var(--color-accent-green)]";
@@ -64,25 +49,18 @@ export default function ResultPanel() {
     setTimeout(() => setCopied(false), 1500);
   }
 
-  async function downloadImage(mode: "en" | "zh") {
+  async function downloadImage() {
     const inp = input();
     const r = result();
     if (!inp || !r || r.glyphs.length === 0) return;
     setDownloading(true);
     try {
-      let blob: Blob | null;
-      if (mode === "zh") {
-        const t = translation();
-        if (!t) return;
-        blob = await renderChineseTranslatedImageBlob(inp.bitmap, r.glyphs, t.translatedLines);
-      } else {
-        blob = await renderTranslatedImageBlob(inp.bitmap, r.glyphs);
-      }
+      const blob = await renderTranslatedImageBlob(inp.bitmap, r.glyphs);
       if (!blob) return;
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `glyphlens-${mode === "zh" ? "chinese" : "english"}-${Date.now()}.png`;
+      a.download = `sigil-english-${Date.now()}.png`;
       a.click();
       URL.revokeObjectURL(url);
     } finally {
@@ -100,7 +78,7 @@ export default function ResultPanel() {
     <div class="panel p-4 flex flex-col gap-4 h-full">
       <div class="flex items-center justify-between">
         <h2 class="text-sm font-semibold tracking-wide uppercase text-subtext">
-          识别结果
+          {t("result.title")}
         </h2>
         <div class="flex items-center gap-2">
           <Show when={result()}>
@@ -109,16 +87,11 @@ export default function ResultPanel() {
                 <Type size={10} /> EN
               </TabBtn>
               <TabBtn active={viewTab() === "chinese"} onClick={() => setViewTab("chinese")}>
-                <Languages size={10} /> 中文
+                <Languages size={10} /> {t("result.tabZH")}
               </TabBtn>
               <Show when={hasTranslatedImage()}>
                 <TabBtn active={viewTab() === "image-en"} onClick={() => setViewTab("image-en")}>
-                  <ImageIcon size={10} /> EN图
-                </TabBtn>
-              </Show>
-              <Show when={translation()}>
-                <TabBtn active={viewTab() === "image-zh"} onClick={() => setViewTab("image-zh")}>
-                  <ImageIcon size={10} /> 中图
+                  <ImageIcon size={10} /> {t("result.tabImageEN")}
                 </TabBtn>
               </Show>
             </div>
@@ -134,18 +107,18 @@ export default function ResultPanel() {
               class="flex items-center gap-1 text-xs text-muted hover:text-text transition"
             >
               <Copy size={12} />
-              {copied() ? "已复制" : "复制"}
+              {copied() ? t("result.copied") : t("result.copy")}
             </button>
           </Show>
-          <Show when={result() && (viewTab() === "image-en" || viewTab() === "image-zh")}>
+          <Show when={result() && viewTab() === "image-en"}>
             <button
               type="button"
-              onClick={() => void downloadImage(viewTab() === "image-zh" ? "zh" : "en")}
+              onClick={() => void downloadImage()}
               disabled={downloading()}
               class="flex items-center gap-1 text-xs text-muted hover:text-text transition disabled:opacity-40"
             >
               <Download size={12} />
-              {downloading() ? "生成中…" : "下载"}
+              {downloading() ? t("result.generating") : t("result.download")}
             </button>
           </Show>
         </div>
@@ -158,13 +131,13 @@ export default function ResultPanel() {
         <div class="flex-1 min-h-[260px] grid place-items-center text-center px-6">
           <div class="text-muted">
             <Sparkles size={36} class="mx-auto mb-3 opacity-60" />
-            <div class="text-sm">提供图片后点击 "开始识别"</div>
+            <div class="text-sm">{t("result.placeholder")}</div>
             <Show when={pack()}>
               {(p) => (
                 <div class="mt-2 text-xs">
-                  当前字体包：
+                  {t("result.currentPack")}
                   <span class="text-subtext">{p().meta.name_zh}</span>
-                  <span class="ml-1 text-muted">· {p().meta.script_features.letter_count} 字母</span>
+                  <span class="ml-1 text-muted">· {p().meta.script_features.letter_count} {t("result.letters")}</span>
                 </div>
               )}
             </Show>
@@ -177,10 +150,10 @@ export default function ResultPanel() {
           <div class="flex flex-col items-center gap-3 text-subtext">
             <Loader2 size={28} class="animate-spin text-accent" />
             <div class="text-sm">
-              {stage() ? STAGE_LABELS[stage()!] : "流水线运行中…"}
+              {stage() ? t(`stage.${stage()!}`) : t("result.pipelineRunning")}
             </div>
             <div class="text-xs text-muted">
-              预处理 → 分割 → 分类 → 拼装
+              {t("result.pipelineFlow")}
             </div>
           </div>
         </div>
@@ -207,7 +180,7 @@ export default function ResultPanel() {
                   when={r().text.length > 0}
                   fallback={
                     <div class="text-sm text-muted italic">
-                      未检测到字符。可能：图像中无字体包覆盖的文字，或分割阶段失败。
+                      {t("result.noChars")}
                     </div>
                   }
                 >
@@ -237,13 +210,13 @@ export default function ResultPanel() {
                 </Show>
 
                 <div class="mt-4 pt-4 border-t border-[var(--color-surface)] grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-                  <Stat label="字符数" value={String(r().glyphs.length)} />
+                  <Stat label={t("result.charCount")} value={String(r().glyphs.length)} />
                   <Stat
-                    label="平均置信度"
+                    label={t("result.avgConfidence")}
                     value={`${(r().averageConfidence * 100).toFixed(1)}%`}
                     valueClass={confidenceColor(r().averageConfidence)}
                   />
-                  <Stat label="总耗时" value={`${r().elapsedMs.toFixed(0)} ms`} />
+                  <Stat label={t("result.totalTime")} value={`${r().elapsedMs.toFixed(0)} ms`} />
                 </div>
               </div>
             </Show>
@@ -254,31 +227,31 @@ export default function ResultPanel() {
                 <Show when={translating()}>
                   <div class="flex items-center gap-2 text-sm text-muted">
                     <Loader2 size={16} class="animate-spin" />
-                    正在翻译…
+                    {t("result.translating")}
                   </div>
                 </Show>
                 <Show when={translateError()}>
                   {(msg) => (
                     <div class="flex items-center gap-2 text-sm text-[var(--color-accent-red)]">
                       <AlertCircle size={16} />
-                      翻译失败：{msg()}
+                      {t("result.translateFailedPrefix")}{msg()}
                     </div>
                   )}
                 </Show>
                 <Show when={translation()}>
-                  {(t) => (
+                  {(tr) => (
                     <>
                       <pre class="text-2xl leading-relaxed whitespace-pre-wrap break-words text-text">
-{t().translatedText}
+{tr().translatedText}
                       </pre>
                       <div class="mt-4 pt-4 border-t border-[var(--color-surface)]">
-                        <div class="text-xs text-muted mb-2">原文 → 翻译 逐句对照（已合并软换行）</div>
+                        <div class="text-xs text-muted mb-2">{t("result.translationHint")}</div>
                         <div class="space-y-2">
-                          <For each={t().sourceLines}>
+                          <For each={tr().sourceLines}>
                             {(srcLine, i) => (
                               <div class="rounded bg-[var(--color-base)]/40 px-3 py-2 text-xs">
                                 <div class="text-muted font-mono">{srcLine}</div>
-                                <div class="text-text mt-1">{t().translatedLines[i()] ?? ""}</div>
+                                <div class="text-text mt-1">{tr().translatedLines[i()] ?? ""}</div>
                               </div>
                             )}
                           </For>
@@ -289,7 +262,7 @@ export default function ResultPanel() {
                 </Show>
                 <Show when={!translating() && !translateError() && !translation()}>
                   <div class="text-sm text-muted italic">
-                    识别完成后将自动翻译为中文
+                    {t("result.willAutoTranslate")}
                   </div>
                 </Show>
               </div>
@@ -303,26 +276,14 @@ export default function ResultPanel() {
                 loading={!hasTranslatedImage()}
                 showOriginal={showOriginal}
                 setShowOriginal={setShowOriginal}
-                label="英文"
-              />
-            </Show>
-
-            {/* ── 中文译图 ── */}
-            <Show when={viewTab() === "image-zh"}>
-              <ImageCompareView
-                imageUrl={chineseImageUrl()}
-                originalUrl={input()?.previewUrl}
-                loading={!chineseImageUrl()}
-                showOriginal={showOriginal}
-                setShowOriginal={setShowOriginal}
-                label="中文"
+                label={t("result.enImageLabel")}
               />
             </Show>
 
             <div class="rounded-lg bg-[var(--color-mantle)]/40 border border-[var(--color-surface)]/50 p-3">
               <div class="flex items-center gap-2 mb-2">
                 <FileText size={12} class="text-muted" />
-                <span class="text-xs text-muted">流水线耗时</span>
+                <span class="text-xs text-muted">{t("result.pipelineTimings")}</span>
               </div>
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
                 <For each={sortedTimings()}>
@@ -368,6 +329,7 @@ function ImageCompareView(props: {
   setShowOriginal: (fn: (prev: boolean) => boolean) => void;
   label: string;
 }) {
+  const t = useT();
   return (
     <div class="flex-1 min-h-[180px] rounded-xl bg-[var(--color-mantle)] border border-[var(--color-surface)] overflow-hidden flex flex-col">
       <Show
@@ -376,17 +338,17 @@ function ImageCompareView(props: {
           <div class="flex-1 grid place-items-center p-5">
             <div class="text-sm text-muted italic flex flex-col items-center gap-2">
               <Loader2 size={20} class="animate-spin opacity-60" />
-              {props.label}译图生成中…
+              {t("result.imageGenerating", { label: props.label })}
             </div>
           </div>
         }
       >
         <div class="flex items-center justify-between px-3 py-2 border-b border-[var(--color-surface)]">
           <span class="text-xs text-muted">
-            {props.showOriginal() ? "原图" : `${props.label}翻译`}
+            {props.showOriginal() ? t("result.originalLabel") : t("result.translationLabel", { label: props.label })}
           </span>
           <label class="flex items-center gap-1.5 text-xs text-muted cursor-pointer select-none">
-            <span>原图对比</span>
+            <span>{t("result.compareOriginal")}</span>
             <button
               type="button"
               onClick={() => props.setShowOriginal((v) => !v)}
@@ -410,14 +372,14 @@ function ImageCompareView(props: {
             fallback={
               <img
                 src={props.originalUrl}
-                alt="原图"
+                alt={t("result.altOriginalImage")}
                 class="max-h-[420px] max-w-full object-contain rounded"
               />
             }
           >
             <img
               src={props.imageUrl!}
-              alt={`${props.label}翻译图像`}
+              alt={t("result.altTranslatedImage", { label: props.label })}
               class="max-h-[420px] max-w-full object-contain rounded"
             />
           </Show>

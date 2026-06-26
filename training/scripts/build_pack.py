@@ -124,7 +124,7 @@ def main() -> None:
     meta = {
         "id": "nte",
         "name_zh": "异环",
-        "name_en": "Neverless to Everless",
+        "name_en": "Neverness to Everness",
         "abbrev": "NTE",
         "version": "0.5.2",
         "created_at": datetime.now(timezone.utc).isoformat(),

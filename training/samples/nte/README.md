@@ -1,6 +1,6 @@
 # NTE（异环）真实游戏截图样本
 
-把真实 NTE（异环 / Neverless to Everless）游戏内**包含自创文字**的截图放在这个目录下。
+把真实 NTE（异环 / Neverness to Everness）游戏内**包含自创文字**的截图放在这个目录下。
 
 ## 用途
 
