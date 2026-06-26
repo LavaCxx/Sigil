@@ -54,3 +54,6 @@ GEMINI.md
 
 # Vite cache
 .vite/
+
+# Internal docs (not for public release)
+docs/
