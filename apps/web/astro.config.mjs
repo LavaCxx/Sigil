@@ -28,6 +28,34 @@ function ortStaticPlugin() {
         fs.createReadStream(fp).pipe(res);
       });
     },
+    // 生产构建收尾：把 onnxruntime-web 的 wasm 静态文件放到 dist/ort/，
+    // 同时删除 Vite 自动 emit 到 dist/_astro/ 的 onnx wasm（含超大的 jsep 版本，
+    // 单文件 25MiB+，会触发 Cloudflare Pages 文件大小限制）。
+    // 项目用 executionProviders:["wasm"]，运行时只 fetch /ort/ort-wasm-simd-threaded.wasm，
+    // jsep（WebGPU）/ webgl 版本不会被加载，可以安全丢弃。
+    apply: "build",
+    closeBundle() {
+      const ortDist = path.resolve("node_modules/onnxruntime-web/dist");
+      const outAstro = path.resolve("./dist/_astro");
+      const outOrt = path.resolve("./dist/ort");
+
+      // 1. 复制需要的 wasm 到 dist/ort/（排除 jsep / webgl / jspi 等 GPU 后端）
+      fs.mkdirSync(outOrt, { recursive: true });
+      for (const f of fs.readdirSync(ortDist)) {
+        if (f.endsWith(".wasm") && !/jsep|webgl|jspi/.test(f)) {
+          fs.copyFileSync(path.join(ortDist, f), path.join(outOrt, f));
+        }
+      }
+
+      // 2. 删除 dist/_astro/ 里 Vite emit 的 onnx wasm（避免重复 + 超大文件）
+      if (fs.existsSync(outAstro)) {
+        for (const f of fs.readdirSync(outAstro)) {
+          if (f.endsWith(".wasm") && /ort-wasm|jsep|webgl/.test(f)) {
+            fs.unlinkSync(path.join(outAstro, f));
+          }
+        }
+      }
+    },
   };
 }
 
