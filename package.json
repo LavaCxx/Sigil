@@ -8,5 +8,8 @@
     "build": "pnpm --filter @glyphlens/web build",
     "preview": "pnpm --filter @glyphlens/web preview"
   },
-  "packageManager": "pnpm@10.11.1"
+  "packageManager": "pnpm@10.11.1",
+  "pnpm": {
+    "neverBuiltDependencies": ["onnxruntime-web"]
+  }
 }
