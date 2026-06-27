@@ -11,25 +11,9 @@ import ResultPanel from "./ResultPanel";
 import DebugPanel from "./DebugPanel";
 import EncodePanel from "./EncodePanel";
 
-/**
- * DebugPanel 仅在以下任一条件成立时渲染：
- * - 开发模式（import.meta.env.DEV，生产构建会被 Vite 替换为 false 并被死代码消除）
- * - URL 带 ?debug=1（允许生产环境也能临时开启调参面板）
- *
- * 默认生产用户看不到分割参数滑块、patch 可视化、字体包元信息等开发期辅助。
- */
-function shouldShowDebugPanel(): boolean {
-  if (import.meta.env.DEV) return true;
-  if (typeof location !== "undefined") {
-    return new URLSearchParams(location.search).has("debug");
-  }
-  return false;
-}
-
 export default function App() {
   const mode = useStore($appMode);
   const t = useT();
-  const showDebug = shouldShowDebugPanel();
 
   onMount(() => {
     bootstrapPacks();
@@ -70,9 +54,7 @@ export default function App() {
               <ResultPanel />
             </div>
           </div>
-          <Show when={showDebug}>
-            <DebugPanel />
-          </Show>
+          <DebugPanel />
         </Show>
 
         <Show when={mode() === "encode"}>
