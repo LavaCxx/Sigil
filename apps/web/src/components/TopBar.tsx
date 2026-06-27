@@ -1,5 +1,4 @@
 import { useStore } from "@nanostores/solid";
-import { Github } from "lucide-solid";
 import { $loadedPack, $packLoading } from "~/stores/pack";
 import { useT, toggleLocale, $locale } from "~/stores/locale";
 import GameSelector from "./GameSelector";
@@ -50,16 +49,6 @@ export default function TopBar() {
           >
             {locale() === "zh" ? "EN" : "中"}
           </button>
-          {/* TODO(mvp): 上线前替换为实际仓库链接，或暂时移除按钮 */}
-          <a
-            href="https://github.com"
-            target="_blank"
-            rel="noreferrer"
-            class="grid h-9 w-9 place-items-center rounded-lg border border-[var(--color-surface)] text-subtext hover:text-text hover:border-[var(--color-overlay)] transition"
-            aria-label="GitHub"
-          >
-            <Github size={16} />
-          </a>
         </div>
       </div>
     </header>
